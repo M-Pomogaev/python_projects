@@ -40,7 +40,8 @@ class Polinom:
         return True
     
     def __str__(self) -> str:
-        return str(self.coefficients)
+        strings = [f'{self.coefficients[i]}x^{i}' for i in range(self.degree+1) if self.coefficients[i] != 0]
+        return ' + '.join(strings)
         
     def __main_coef__(self):
         return self.coefficients[self.degree]
@@ -61,11 +62,11 @@ class Polinom:
     
     def __mul__(self, other):
         if type(other) == int:
-            return Polinom(np.mod(self.coefficients * other, self.field), self.field)
+            return Polinom(self.coefficients * other, self.field)
         coefficients = np.zeros(self.degree + other.degree + 1)
         for i in range(self.degree + 1):
             for j in range(other.degree + 1):
-                coefficients[i + j] = np.mod(coefficients[i + j] + self.coefficients[i] * other.coefficients[j], self.field)
+                coefficients[i + j] += self.coefficients[i] * other.coefficients[j]
         return Polinom(coefficients, self.field)
     
     def __sub__(self, other):

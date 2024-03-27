@@ -32,7 +32,7 @@ def find_result(pol):
     devisors = devisor.find_devision(pol)
     for i in devisors:
         print("    pol/", i)
-    pol = Polinom([1], 3)
+    pol = Polinom([1], pol.field)
     for i in devisors:
         pol = pol * i
     print("pol:", pol)
@@ -49,4 +49,6 @@ def test():
     
     
 if __name__ == "__main__":
-    test()
+    #test()
+    devisor = Devisor(2)
+    find_result(Polinom([1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1], 2))
