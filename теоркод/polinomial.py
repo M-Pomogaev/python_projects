@@ -4,6 +4,13 @@ def devide_in_field(devider: int, devidend: int, field: int):
     for i in range(0, field):
         if (i * devider) % field == devidend:
             return i
+        
+def int_to_polinom(num, field):
+        coef = []
+        while num > 0:
+            coef.append(num % field)
+            num //= field
+        return Polinom(coef, field)
 
 class Polinom:
     def __init__(self, coefficients: np.array, field: int):
@@ -40,8 +47,17 @@ class Polinom:
         return True
     
     def __str__(self) -> str:
-        strings = [f'{self.coefficients[i]}x^{i}' for i in range(self.degree+1) if self.coefficients[i] != 0]
-        return ' + '.join(strings)
+        if self.degree == 0:
+            return str(self.coefficients[0])
+        strings = str()
+        strings += str(self.coefficients[0])
+        for i in range(1, self.degree + 1):
+            if self.coefficients[i] != 0:
+                strings += ' + '
+                if self.coefficients[i] != 1:
+                    strings += str(self.coefficients[i])
+                strings += 'x^' + str(i)
+        return strings
         
     def __main_coef__(self):
         return self.coefficients[self.degree]
@@ -68,6 +84,11 @@ class Polinom:
             for j in range(other.degree + 1):
                 coefficients[i + j] += self.coefficients[i] * other.coefficients[j]
         return Polinom(coefficients, self.field)
+    
+    def __pow__(self, power):
+        if power == 0:
+            return Polinom(np.array([1]), self.field)
+        return self * self.__pow__(power - 1)
     
     def __sub__(self, other):
         return self + other * -1
@@ -124,4 +145,5 @@ def test():
     print("p8==0:", p8 == 0)
 
 if __name__ == "__main__":
-    test()
+    #test()
+    print(Polinom([5, 0, 0, 1], 7)*Polinom([3, 0, 0, 1], 7)*Polinom([6, 1], 7))

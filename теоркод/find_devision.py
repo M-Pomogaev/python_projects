@@ -1,30 +1,30 @@
-from polinomial import Polinom
+from polinomial import Polinom, int_to_polinom
 import numpy as np
 
 class Devisor:
     def __init__(self, field):
         self.field = field
         
-    def int_to_polinom(self, num):
-        coef = []
-        while num > 0:
-            coef.append(num % self.field)
-            num //= self.field
-        return Polinom(coef, self.field)
-        
     def find_devision(self, devidend):
         dev = devidend.copy()
         devisors = []
         num = self.field
-        polinom = self.int_to_polinom(num)
+        polinom = int_to_polinom(num, self.field)
         while dev.degree > polinom.degree:
             if dev % polinom == 0:
                 devisors.append(polinom)
                 dev = dev / polinom
             num += 1
-            polinom = self.int_to_polinom(num)
+            polinom = int_to_polinom(num, self.field)
         devisors.append(dev)
         return devisors
+    
+def find_undivisable(field, n):
+    devisor = Devisor(field)
+    num = field**n
+    while len(devisor.find_devision(int_to_polinom(num, field))) > 1:
+        num += 1
+    return int_to_polinom(num, field)
             
 def find_result(pol):
     devisor = Devisor(pol.field)
@@ -50,5 +50,6 @@ def test():
     
 if __name__ == "__main__":
     #test()
-    devisor = Devisor(2)
-    find_result(Polinom([1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1], 2))
+    #devisor = Devisor(2)
+    #find_result(Polinom([1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1], 2))
+    print(find_undivisable(5, 4))
