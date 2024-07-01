@@ -27,6 +27,10 @@ class Field:
         self.m = polinom.degree
         self.n = np.power(self.p, self.m)
         self.find_alpha()
+        
+    def polinom_in_field(self, polinom: Polinom):
+        return polinom % self.polinom
+    
     def check_order(self, el_order):
         if ((self.n-1) % el_order != 0):
             raise Exception("n must be multiple of el_order")
@@ -60,6 +64,21 @@ class Field:
     def alpha_n(self, n):
         pol = np.power(self.alpha, n)
         return pol % self.polinom
+    def minus_one_power(self, pol):
+        pol = self.polinom_in_field(pol)
+        negative = self.alpha_n(1)
+        while self.polinom_in_field(negative * pol) != 1:
+            negative = negative * self.alpha_n(1)
+        return self.polinom_in_field(negative)
+    
+    def pol_to_power(self, pol):
+        pol = self.polinom_in_field(pol)
+        if pol == 0:
+            return -1
+        power = 0
+        while self.polinom_in_field(self.alpha_n(power)) != pol:
+            power += 1
+        return power
     
     def find_minpolinoms(self, el_order):
         self.check_order(el_order)
@@ -69,20 +88,21 @@ class Field:
         for i in classes:
             coefs = []
             for j in powerset(i):
-                coef = Polinom([-1], self.p)
-                for k in j:
-                    coef = coef * self.alpha_n(k*step)
                 lenj = len(j)
                 if (lenj == 0):
                     continue
+                coef = Polinom([((-1)**lenj)], self.p)
+                for k in j:
+                    coef = coef * self.alpha_n(k*step)
                 if (lenj > len(coefs)):
                     coefs.append(coef)
                 else: 
                     coefs[lenj-1] += coef
             coefs.reverse()
             coefs_ = [i % self.polinom for i in coefs]
-            coefs_.append(Polinom([1], self.p))
-            self.minpols[i] = coefs_
+            coefs_ = [int(i) for i in coefs_]
+            coefs_.append(1)
+            self.minpols[i] = Polinom(coefs_, self.p)
             
 def print_classes(field):
     print("classes:", field.classes)
@@ -94,9 +114,49 @@ def print_classes(field):
 def print_minpolinoms(field, el_order):
     field.find_minpolinoms(el_order)
     for i in field.minpols:
-        print(i,":")
-        for j in field.minpols[i]:
-            print("    ", j)
+        print(i, ":\n   ", field.minpols[i])
+        
+def find_Rid_Solomin(field, delta, b):
+    powers = [i for i in range(b, delta + b - 1)]
+    coefs = []
+    for j in powerset(powers):
+        lenj = len(j)
+        if (lenj == 0):
+            continue
+        pow = 0
+        for k in j:
+            pow = (pow + k) % (field.n - 1)
+        coef = Polinom([(-1)**lenj], field.p) * field.alpha_n(pow)
+        if (lenj > len(coefs)):
+            coefs.append(coef)
+        else: 
+            coefs[lenj-1] += coef
+    coefs.reverse()
+    coefs = [field.pol_to_power(i) for i in coefs]
+    coefs.append(0)
+    return coefs
+    
+    
+        
+def locator_polinom(field, e1, e3):
+    b = e1
+    c = 1
+    e1_negative = field.minus_one_power(b)
+    a = field.polinom_in_field((b*b*b + e3)*e1_negative)
+    print("a: ", a, "b: ", b, "c: ", c)
+    neg_b = field.minus_one_power(b) 
+    d = field.polinom_in_field(a * neg_b * neg_b * c)
+    print("d  ",d)
+    u = []
+    for i in range(0, field.n - 1):
+        pol = field.alpha_n(i) + field.alpha_n(2*i)
+        if d == field.polinom_in_field(pol):
+            u.append(field.alpha_n(i))
+    for i in u:
+        pol = field.minus_one_power(a) * b * i
+        print("x: ", field.minus_one_power(field.polinom_in_field(pol)))
+    
+    
             
 def test():
     field = Field(Polinom([1, 0, 0, 1, 1], 2))
@@ -104,13 +164,17 @@ def test():
     print_classes(field)
     print_minpolinoms(field)
     
+    
 if __name__ == "__main__":
     #test()
     #classes = find_classes(3, 80)
     #for i in classes:
     #    print(i,":")
-    field = Field(Polinom([2, 0, 0, 0, 1], 5))
-    field.print_field(13)
-    print_minpolinoms(field, )
+    field = Field(Polinom([2, 2, 1], 3))
+    field.print_field(8)
+    print_minpolinoms(field, 8)
+    locator_polinom(field, field.alpha_n(7), field.alpha_n(5))
+    #print(find_Rid_Solomin(field, 5, 1))
+    
     
             

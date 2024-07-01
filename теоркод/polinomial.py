@@ -119,6 +119,11 @@ class Polinom:
         res = Polinom(np.zeros(1), self.field)
         devidend = self.copy()
         return self.__deviter__(other, devidend, res)
+    def __int__(self):
+        if self.degree == 0:
+            return int(self.coefficients[0])
+        else:
+            raise Exception("Polinom degree > 0")
     
 def test():
     p1 = Polinom(np.array([1, 2, 3, 0, 0]), 5)
@@ -143,7 +148,11 @@ def test():
     print("p10==p1:", p10 == p1)
     print("p5==p7:", p5 == p7)
     print("p8==0:", p8 == 0)
+    print("int(p8):", int(p8))
 
 if __name__ == "__main__":
     #test()
-    print(Polinom([5, 0, 0, 1], 7)*Polinom([3, 0, 0, 1], 7)*Polinom([6, 1], 7))
+    print(p1:=Polinom([0, 0, 1, 2, 1, 1, 0, 2], 3))
+    print(p2:=Polinom([2, 0, 1, 2, 0, 1], 3))
+    print(p1 % p2)
+    print(p1 / p2)
